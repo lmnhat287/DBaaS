@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4">💾 Backup & Restore</h2>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+  <div class="mb-3">
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endwith %}
+
+<!-- Upload file JSON -->
+<div class="mb-5">
+    <h4>📤 Upload file JSON</h4>
+    <form action="{{ url_for('backup.upload_backup') }}" method="POST" enctype="multipart/form-data" class="d-flex gap-2">
+      <input type="file" name="backup_file" class="form-control" required>
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+</div>
+
+<!-- Backup collection -->
+<div class="mb-5">
+    <h4>📦 Backup một collection</h4>
+    <form action="{{ url_for('backup.backup_collection') }}" method="POST" class="row g-2">
+      <div class="col">
+        <input type="text" name="db_name" placeholder="Tên Database" class="form-control" required>
+      </div>
+      <div class="col">
+        <input type="text" name="collection_name" placeholder="Tên Collection" class="form-control" required>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-success">Backup</button>
+      </div>
+    </form>
+</div>
+
+<!-- Danh sách file backup -->
+<div>
+    <h4>📁 Các file backup</h4>
+    <ul class="list-group">
+      {% for f in backup_files %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ f }}
+          <div class="d-flex gap-2">
+            <form action="{{ url_for('backup.restore_backup') }}" method="POST" class="d-flex gap-1">
+              <input type="hidden" name="file_name" value="{{ f }}">
+              <select name="target_db" class="form-select form-select-sm" required>
+                <option value="">Chọn database...</option>
+                <option value="new">+ Tạo database mới</option>
+                {% for db in databases %}
+                  <option value="{{ db }}">{{ db }}</option>
+                {% endfor %}
+              </select>
+              <input type="text" name="new_db_name" placeholder="Tên DB mới (nếu tạo mới)" class="form-control form-control-sm" style="display:none;">
+              <button type="submit" class="btn btn-sm btn-success">Restore</button>
+            </form>
+            <form action="{{ url_for('backup.delete_backup') }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa file {{ f }}?');">
+              <input type="hidden" name="file_name" value="{{ f }}">
+              <button type="submit" class="btn btn-sm btn-danger">🗑️ Xóa</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+</div>
+
+<script>
+document.querySelectorAll('select[name="target_db"]').forEach(select => {
+    select.addEventListener('change', function() {
+        const newDbInput = this.parentElement.querySelector('input[name="new_db_name"]');
+        if (this.value === 'new') {
+            newDbInput.style.display = 'inline';
+            newDbInput.required = true;
+        } else {
+            newDbInput.style.display = 'none';
+            newDbInput.required = false;
+        }
+    });
+});
+</script>
+
+{% endblock %}

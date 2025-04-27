@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4">📂 Danh sách Database</h2>
+
+<!-- Form tạo Database -->
+<form action="{{ url_for('database.create_db') }}" method="POST" class="row g-2 mb-4">
+    <div class="col-auto">
+        <input type="text" name="db_name" class="form-control" placeholder="Tên Database" required>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-success">➕ Tạo Database</button>
+    </div>
+</form>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="mb-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- Danh sách Databases -->
+<ul class="list-group">
+  {% for db in databases %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <a href="{{ url_for('main.view_collections', db_name=db) }}" class="text-decoration-none">{{ db }}</a>
+      <div class="d-flex gap-2">
+        <form action="{{ url_for('database.rename_database', old_name=db) }}" method="POST" class="d-flex gap-1">
+          <input type="text" name="new_name" class="form-control form-control-sm" placeholder="Tên mới" required style="width: 120px;">
+          <button class="btn btn-sm btn-warning">✏️</button>
+        </form>
+        <form action="{{ url_for('database.delete_db', db_name=db) }}" method="POST" onsubmit="return confirm('Bạn chắc chắn muốn xoá database {{ db }}?');">
+          <button type="submit" class="btn btn-sm btn-danger">❌ Xoá</button>
+        </form>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

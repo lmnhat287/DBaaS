@@ -1,0 +1,189 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+  {% if collections and collection_name is not defined %}
+  <h2>Collections của database "{{ db_name }}"</h2>
+  <h4 class="mt-4">➕ Tạo Collection mới</h4>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="mb-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% endwith %}
+
+    <form action="{{ url_for('collection.create_collection', db_name=db_name) }}" method="POST" class="d-flex mb-4" style="gap: 10px;">
+      <input type="text" name="collection_name" placeholder="Nhập tên Collection" class="form-control" required>
+      <button type="submit" class="btn btn-success">Tạo</button>
+    </form>
+  <ul class="list-group">
+    {% for col in collections %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('collection.view_documents', db_name=db_name, collection_name=col) }}">
+          📁 {{ col }}
+        </a>
+        <div>
+          <form action="{{ url_for('collection.export_collection', db_name=db_name, collection_name=col) }}" method="POST" class="d-inline">
+            <button class="btn btn-sm btn-primary">⬇️ Export</button>
+          </form>
+          <form action="{{ url_for('collection.rename_collection', db_name=db_name, old_name=col) }}" method="POST" class="d-inline">
+            <input type="text" name="new_name" placeholder="Tên mới" required style="width:100px;">
+            <button class="btn btn-sm btn-warning">✏️</button>
+          </form>
+          <form action="{{ url_for('collection.delete_collection', db_name=db_name, collection_name=col) }}" method="POST" class="d-inline"
+                onsubmit="return confirm('Bạn chắc chắn xoá {{ col }}?');">
+            <button class="btn btn-sm btn-danger">❌</button>
+          </form>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if documents is defined %}
+  <hr>
+
+  <h2>Documents trong "{{ collection_name }}"</h2>
+
+  <!-- Thêm document mới -->
+  <form action="{{ url_for('collection.add_document', db_name=db_name, collection_name=collection_name) }}" method="POST" class="mb-3">
+    <textarea name="json_data" rows="3" class="form-control mb-2" placeholder='{"_id": "newID", "field": "value"}' required></textarea>
+    <button type="submit" class="btn btn-success">➕ Thêm document</button>
+  </form>
+  <!-- Form tìm kiếm document -->
+  <form action="{{ url_for('collection.search_documents', db_name=db_name, collection_name=collection_name) }}" method="POST" class="row g-2 mb-3">
+    <div class="col-auto">
+      <select name="field" class="form-select" required>
+        {% for field in field_names %}
+          <option value="{{ field }}">{{ field }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <input type="text" name="value" placeholder="Nhập giá trị tìm" class="form-control" required>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">🔍 Tìm kiếm</button>
+      <a href="{{ url_for('collection.view_documents', db_name=db_name, collection_name=collection_name) }}" class="btn btn-sm btn-warning ms-2">🧹 Xoá bộ lọc</a>
+    </div>
+  </form>
+
+  {% macro render_value(value) %}
+  {% if value is mapping %}
+    <details class="ms-3 border-start ps-2 mt-1">
+      <summary class="fw-bold text-primary">[Object]</summary>
+      {% for k, v in value.items() %}
+        <strong>{{ k }}:</strong> {{ render_value(v) }}
+      {% endfor %}
+    </details>
+
+  {% elif value is sequence and value is not string %}
+    <details class="ms-3 border-start ps-2 mt-1">
+      <summary class="fw-bold text-success">[Array]</summary>
+      {% for item in value %}
+        {% if item is mapping %}
+          <div class="mb-1">
+            {{ render_value(item) }}
+          </div>
+        {% else %}
+          • {{ item }}<br>
+        {% endif %}
+      {% endfor %}
+    </details>
+
+  {% elif value is sameas none %}
+    <span class="text-muted">null</span><br>
+
+  {% elif value is boolean %}
+    <span class="text-primary">{{ value | lower }}</span><br>
+
+  {% elif value is number %}
+    <span class="text-success">{{ value }}</span><br>
+
+  {% elif value.__class__.__name__ == 'ObjectId' %}
+    <code>{{ value }}</code><br>
+
+  {% elif value.__class__.__name__ == 'datetime' %}
+    <span class="text-info">{{ value.strftime('%Y-%m-%d %H:%M:%S') }}</span><br>
+
+  {% elif value.__class__.__name__ == 'Binary' %}
+    <span class="text-warning">[Binary Data]</span><br>
+
+  {% else %}
+    {{ value }}<br>
+  {% endif %}
+{% endmacro %}
+
+<!-- Hiển thị documents -->
+<ul class="list-group">
+  {% for doc in documents %}
+    <li class="list-group-item">
+      {% for key, value in doc.items() %}
+        <strong class="text-danger">{{ key }}:</strong> {{ render_value(value) }}
+      {% endfor %}
+    </li>
+    <div class="my-3">
+      <button class="btn btn-outline-primary btn-sm" onclick="expandAll()">Expand All</button>
+      <button class="btn btn-outline-secondary btn-sm" onclick="collapseAll()">Collapse All</button>
+    </div>
+  {% endfor %}
+</ul>
+
+  {% if total_pages > 1 %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+  
+      {% if page > 1 %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('collection.view_documents', db_name=db_name, collection_name=collection_name, page=page-1) }}">
+          «
+        </a>
+      </li>
+      {% endif %}
+  
+      {% for p in range(start_page, end_page + 1) %}
+        {% if p == page %}
+        <li class="page-item active"><a class="page-link" href="#">{{ p }}</a></li>
+        {% else %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('collection.view_documents', db_name=db_name, collection_name=collection_name, page=p) }}">
+            {{ p }}
+          </a>
+        </li>
+        {% endif %}
+      {% endfor %}
+  
+      {% if page < total_pages %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('collection.view_documents', db_name=db_name, collection_name=collection_name, page=page+1) }}">
+          »
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+{% endif %}
+{% if documents is defined %}
+  <div class="mt-3">
+    <a class="btn btn-secondary" href="{{ url_for('main.view_collections', db_name=db_name) }}">← Quay lại Collections</a>
+  </div>
+{% endif %}
+<div class="mt-3">
+  <a class="btn btn-secondary" href="{{ url_for('main.show_databases') }}">← Quay lại Databases</a>
+</div>
+</div>
+<script>
+  function expandAll() {
+    document.querySelectorAll('details').forEach(d => d.open = true);
+  }
+  function collapseAll() {
+    document.querySelectorAll('details').forEach(d => d.open = false);
+  }
+  </script>
+{% endblock %}
