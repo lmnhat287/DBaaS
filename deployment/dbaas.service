@@ -1,0 +1,14 @@
+[Unit]
+Description=DBaaS Gunicorn Service
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/dbaas
+Environment="PATH=/home/ubuntu/dbaas/venv/bin"
+Environment="PYTHONPATH=/home/ubuntu/dbaas"
+ExecStart=/home/ubuntu/dbaas/venv/bin/gunicorn run:app -w 4 -b 127.0.0.1:8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
