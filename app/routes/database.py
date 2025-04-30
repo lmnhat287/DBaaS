@@ -1,6 +1,6 @@
-from flask import Blueprint, request, redirect, url_for, flash, render_template, current_app
+from flask import Blueprint, request, redirect, url_for, flash, render_template, abort
 from app.extensions import mongo
-
+from flask_login import current_user
 database_bp = Blueprint("database", __name__)
 
 @database_bp.route("/create_db", methods=["POST"])
@@ -20,6 +20,8 @@ def create_db():
 
 @database_bp.route("/delete_db/<db_name>", methods=["POST"])
 def delete_db(db_name):
+    if current_user.role != "admin":
+        abort(403) # Không có quyền
     try:
         mongo.cx.drop_database(db_name)
         flash(f"Đã xoá database {db_name}", "success")

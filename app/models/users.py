@@ -6,6 +6,7 @@ class User(UserMixin):
     def __init__(self, user_doc):
         self.id = str(user_doc['_id'])
         self.username = user_doc['username']
+        self.role = user_doc['role']
     
     @staticmethod
     def get_user_by_username(username):

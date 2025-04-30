@@ -3,7 +3,56 @@
 
 <div class="text-center">
     <h2>👋 Chào mừng đến hệ thống Database-as-a-Service</h2>
-    <p>Chọn một chức năng từ menu trên để bắt đầu.</p>
+    {% if current_user.role == 'admin' %}
+    <h2>🔐 Quản lý người dùng</h2>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="mb-3">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <table class="table table-bordered">
+    <thead>
+        <tr>
+        <th>Username</th>
+        <th>Vai trò hiện tại</th>
+        <th>Thay đổi vai trò</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if users %}
+            {% for user in users %}
+            <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('auth.profile') }}">
+                <div class="d-flex gap-2">
+                    <input type="hidden" name="user_id" value="{{ user._id }}">
+                    <select name="new_role" class="form-select form-select-sm">
+                    <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Đổi</button>
+                </div>
+                </form>
+            </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="3">Không có người dùng nào để hiển thị.</td></tr>
+        {% endif %}
+    </tbody>
+    </table>
+    {% else %}
+        <p>Chọn một chức năng từ menu trên để bắt đầu.</p>
+    {% endif %}
 </div>
 
 {% endblock %}

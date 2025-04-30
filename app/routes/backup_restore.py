@@ -94,7 +94,7 @@ def restore_backup():
 def backup_collection():
     db_name = request.form.get("db_name")
     collection_name = request.form.get("collection_name")
-
+    
     if not db_name or not collection_name:
         flash("Thiếu thông tin DB hoặc collection", "danger")
         return redirect(url_for("backup.upload_restore"))

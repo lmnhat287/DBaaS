@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from app.models.users import User
-from app.extensions import mongo_user
-
+from app.extensions import mongo_user, mongo
+from bson import ObjectId
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -34,20 +34,52 @@ def login():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
-    # Kiểm tra xem người dùng đã đăng nhập chưa
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if mongo_user['users'].find_one({"username": username}):
+
+        user_collection = mongo.cx["user"]["users"]
+
+        if user_collection.find_one({"username": username}):
             flash('Tên đăng nhập đã tồn tại!', 'danger')
         else:
-            mongo_user['users'].insert_one({
+            result = user_collection.insert_one({
                 "username": username,
-                "password_hash": generate_password_hash(password)
+                "password": generate_password_hash(password),
+                "role": "user"  # Mặc định là user
             })
-            flash('Đăng ký thành công! Đăng nhập ngay.', 'success')
-            return redirect(url_for('auth.login'))
+
+            user_doc = user_collection.find_one({"_id": result.inserted_id})
+            login_user(User(user_doc))
+
+            flash('Đăng ký thành công! Chào mừng bạn.', 'success')
+            return redirect(url_for('main.home'))
+
     return render_template('register.html')
+
+@auth_bp.route('/profile', methods=["GET", "POST"])
+@login_required
+def profile():
+    if current_user.role != "admin":
+        abort(403)
+
+    users_col = mongo.cx["user"]["users"]
+
+    if request.method == "POST":
+        user_id = request.form.get("user_id")
+        new_role = request.form.get("new_role")
+
+        if user_id and new_role:
+            users_col.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$set": {"role": new_role}}
+            )
+            flash("Cập nhật vai trò thành công!", "success")
+        return redirect(url_for("auth.profile"))
+    # GET request
+    all_users = users_col.find({"_id": {"$ne": ObjectId(current_user.id)}})
+    return render_template("index.html", users=all_users)
 
 @auth_bp.route('/logout')
 @login_required

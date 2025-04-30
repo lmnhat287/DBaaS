@@ -164,15 +164,13 @@ def update_document(db_name, collection_name, doc_id):
 
     return redirect(url_for('collection.view_documents', db_name=db_name, collection_name=collection_name))
 
-from bson.regex import Regex
-
 @collection_bp.route("/<db_name>/<collection_name>/search", methods=["GET", "POST"])
 def search_documents(db_name, collection_name):
     try:
         field = request.form.get("field")
         value = request.form.get("value")
         page = int(request.args.get('page', 1))
-        per_page = 1
+        per_page = 8  # Changed from 1 to 8 results per page
 
         collection = mongo.cx[db_name][collection_name]
 
@@ -208,7 +206,11 @@ def search_documents(db_name, collection_name):
         # Get total matching documents
         total_docs = collection.count_documents(filter_query)
 
-        # Get paginated results
+        # Get first document to extract field names
+        first_doc = collection.find_one()
+        field_names = list(first_doc.keys()) if first_doc else []
+
+        # Get paginated results with increased limit
         documents = list(
             collection.find(filter_query)
             .sort([("_id", 1)])  # Sort by _id
@@ -230,13 +232,14 @@ def search_documents(db_name, collection_name):
             collection_name=collection_name,
             collections=mongo.cx[db_name].list_collection_names(),
             documents=documents,
-            field_names=[],
+            field_names=field_names,  # Added field names
             page=page,
             total_pages=total_pages,
             start_page=start_page,
             end_page=end_page,
             search_field=field,
-            search_value=value
+            search_value=value,
+            total_docs=total_docs  # Added total count
         )
 
     except Exception as e:

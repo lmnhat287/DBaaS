@@ -1,0 +1,70 @@
+[{
+  "_id": "S001",
+  "title": "Đất rừng phương nam",
+  "publisher_id": "NXB9",
+  "price": 55000,
+  "quantity": 2
+},
+{
+  "_id": "S002",
+  "title": "Cha con nghĩa nặng",
+  "publisher_id": "NXB8",
+  "price": 50000,
+  "quantity": 1
+},
+{
+  "_id": "S003",
+  "title": "Cay đắng mùi đời",
+  "publisher_id": "NXB7",
+  "price": 50000,
+  "quantity": 1
+},
+{
+  "_id": "S004",
+  "title": "Ai làm được",
+  "publisher_id": "NXB6",
+  "price": 50000,
+  "quantity": 1
+},
+{
+  "_id": "S005",
+  "title": "Chúa tàu Kim quy",
+  "publisher_id": "NXB5",
+  "price": 50000,
+  "quantity": 1
+},
+{
+  "_id": "S006",
+  "title": "Hạnh phúc lối nào",
+  "publisher_id": "NXB4",
+  "price": 50000,
+  "quantity": 1
+},
+{
+  "_id": "S007",
+  "title": "Anh phải sống",
+  "publisher_id": "NXB3",
+  "price": 50000,
+  "quantity": 1
+},
+{
+  "_id": "S008",
+  "title": "Một đời tài sắc",
+  "publisher_id": "NXB2",
+  "price": 50000,
+  "quantity": 1
+},
+{
+  "_id": "S009",
+  "title": "Dế Mèn phiêu lưu kí",
+  "publisher_id": "NXB1",
+  "price": 55000,
+  "quantity": 2
+},
+{
+  "_id": "S010",
+  "title": "Hehe",
+  "publisher_id": "NXB10",
+  "price": 10000,
+  "quantity": 1
+}]
