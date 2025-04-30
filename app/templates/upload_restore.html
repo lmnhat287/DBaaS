@@ -27,18 +27,23 @@
 
 <!-- Backup collection -->
 <div class="mb-5">
-    <h4>📦 Backup một collection</h4>
-    <form action="{{ url_for('backup.backup_collection') }}" method="POST" class="row g-2">
-      <div class="col">
-        <input type="text" name="db_name" placeholder="Tên Database" class="form-control" required>
-      </div>
-      <div class="col">
-        <input type="text" name="collection_name" placeholder="Tên Collection" class="form-control" required>
-      </div>
-      <div class="col-auto">
-        <button type="submit" class="btn btn-success">Backup</button>
-      </div>
-    </form>
+  <h4>📦 Backup một collection</h4>
+  <form action="{{ url_for('backup.backup_collection') }}" method="POST" class="row g-2">
+    <div class="col">
+      <select name="db_name" class="form-select" required>
+        <option value="">Chọn Database...</option>
+        {% for db in databases %}
+          <option value="{{ db }}">{{ db }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col">
+      <input type="text" name="collection_name" placeholder="Tên Collection" class="form-control" required>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-success">Backup</button>
+    </div>
+  </form>
 </div>
 
 <!-- Danh sách file backup -->

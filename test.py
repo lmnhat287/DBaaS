@@ -15,4 +15,9 @@ if not users.find_one({"username": "admin"}):
     })
     print("Admin user created successfully!")
 else:
+    users.insert_one({
+        "username": "admin",
+        "password_hash": generate_password_hash("admin123"),
+        "role": "admin"
+    })
     print("Admin already exists.")

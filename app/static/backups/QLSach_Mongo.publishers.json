@@ -1,0 +1,50 @@
+[{
+  "_id": "NXB2",
+  "name": "Sự thật",
+  "type": "Nhà Nước"
+},
+{
+  "_id": "NXB3",
+  "name": "Tinh tế",
+  "type": "Tư nhân"
+},
+{
+  "_id": "NXB4",
+  "name": "Chân lý",
+  "type": "Nhà nước"
+},
+{
+  "_id": "NXB5",
+  "name": "Tinh hoa",
+  "type": "Tư nhân"
+},
+{
+  "_id": "NXB6",
+  "name": "Dân tộc",
+  "type": "Nhà nước"
+},
+{
+  "_id": "NXB7",
+  "name": "Chân trời mới",
+  "type": "Tư nhân"
+},
+{
+  "_id": "NXB8",
+  "name": "Quân đội",
+  "type": "Nhà nước"
+},
+{
+  "_id": "NXB9",
+  "name": "Mỹ Thuật",
+  "type": "Tư nhân"
+},
+{
+  "_id": "NXB1",
+  "name": "Trẻ",
+  "type": "Tư nhân"
+},
+{
+  "_id": "NXB10",
+  "name": "Anh Phan",
+  "type": "Tư nhân"
+}]

@@ -19,13 +19,8 @@ def home():
 def show_databases():
     # Lấy danh sách tất cả database (trừ hệ thống)
     all_dbs = mongo.cx.list_database_names()
-    if current_user.role != "admin":
-        # Nếu không phải admin, chỉ hiển thị DB của người dùng
-        # Lọc ra các database không phải là hệ thống
-        user_dbs = [db for db in all_dbs if db not in ['admin', 'local', 'config', 'user']]
-    else:
-        # Nếu là admin, hiển thị tất cả database
-        user_dbs = [db for db in all_dbs if db not in ['admin', 'local', 'config']]
+    system_dbs = ['admin', 'local', 'config', 'user']
+    user_dbs = [db for db in all_dbs if db not in system_dbs]
     return render_template("databases.html", databases=user_dbs)
 
 @main_bp.route("/databases/<db_name>/collections")
