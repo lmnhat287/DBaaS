@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from werkzeug.security import generate_password_hash
 
 # Kết nối MongoDB
-client = MongoClient("mongodb+srv://lmnhat148:LMNhat287@mydatabase.5kr4r2f.mongodb.net")  # đổi thành URI thật
+client = MongoClient("your_mongo_uri_here")  # đổi thành URI thật
 db = client['user']
 users = db['users']
 
